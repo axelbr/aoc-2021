@@ -1,8 +1,9 @@
 .PHONY: clean
-.DEFAULT_GOAL := compile
+.DEFAULT_GOAL := all
 
 all:
-	ghc main.hs
+	@ghc main.hs
+	@rm *.o *.hi
 
 clean:
-	@rm *.o *.hi main
+	@rm -f *.o *.hi main

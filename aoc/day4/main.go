@@ -46,6 +46,10 @@ func main() {
 	guesses, boards := loadGame("input.txt")
 	guessChan := make(chan int, len(boards))
 	resultChan := make(chan Result, len(boards))
+
+	remainingBoards := len(boards)
+	finishedBoards := make([]bool, remainingBoards)
+
 	for _, guess := range guesses {
 		for i, board := range boards {
 			go play(i, board, guessChan, resultChan)
@@ -54,9 +58,16 @@ func main() {
 
 		for i := 0; i < len(boards); i++ {
 			result := <-resultChan
-			if result.completed {
-				fmt.Printf("Board %d won! Score: %d", result.id, result.score*guess)
-				os.Exit(0)
+			if result.completed && !finishedBoards[result.id] {
+				finishedBoards[result.id] = true
+				if remainingBoards > 1 {
+					remainingBoards--
+					fmt.Printf("%d boards remaining.\n", remainingBoards)
+				} else {
+					fmt.Printf("Board %d won! Score: %d", result.id, result.score*guess)
+					os.Exit(0)
+				}
+
 			}
 		}
 	}

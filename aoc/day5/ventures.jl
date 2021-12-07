@@ -1,16 +1,21 @@
 using LinearAlgebra
 
 function parse_line_segments(path::String)::Array{Int}
-    line_segments = Array{Int}(undef, 1, 2)
+    line_segments = Array{Int}(undef, 1, 4)
     open(path) do file
         lines = readlines(file)
         for line in lines
             coordinates = split(line, " -> ")
+            segment = [0 0 0 0]
+            i = 1
             for coordinate in coordinates
                 x = parse(Int, split(coordinate, ",")[1])
                 y = parse(Int, split(coordinate, ",")[2])
-                line_segments = vcat(line_segments, [x y])
+                segment[i] = x
+                segment[i+1] = y
+                i += 2
             end
+            line_segments = vcat(line_segments, segment)
         end
     end
     return line_segments[2:end, :]
@@ -19,17 +24,17 @@ end
 function draw_map(line_segments)
     min, max = minimum(line_segments), maximum(line_segments)
     field = zeros(Int, max-min+1, max-min+1)
-    for i in 1:2:size(line_segments)[1]
-        x1, y1 = line_segments[i, 1] - min + 1, line_segments[i, 2] - min + 1
-        x2, y2 = line_segments[i+1, 1] - min + 1, line_segments[i+1, 2] - min + 1
-        draw_line(field, (x1, y1), (x2, y2)) 
+    line_segments = line_segments .+ (-min + 1)
+    for i in 1:size(line_segments)[1]
+        segment = line_segments[i, :]
+        draw_line(field, segment) 
     end
     return field
 end
 
-function draw_line(field, p1, p2)
-    x1, y1 = p1
-    x2, y2 = p2
+function draw_line(field, line_segment)
+    x1, y1 = line_segment[1], line_segment[2]
+    x2, y2 = line_segment[3], line_segment[4]
     x_step = x1 < x2 ? 1 : -1
     y_step = y1 < y2 ? 1 : -1
     if x1 == x2

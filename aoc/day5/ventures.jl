@@ -1,5 +1,3 @@
-using LinearAlgebra
-
 function parse_line_segments(path::String)::Array{Int}
     line_segments = Array{Int}(undef, 1, 4)
     open(path) do file

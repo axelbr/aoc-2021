@@ -12,8 +12,8 @@ object Main extends App {
   }
 
   @tailrec
-  def runEvolution(epochs: Int, population: List[Int]): List[Int] = (epochs, population) match {
-    case (0, population) => population
+  def runEvolution(epochs: Int, population: List[Int]): Int = (epochs, population) match {
+    case (0, population) => population.sum
     case (epochs, population) => runEvolution(epochs - 1, step(population))
   }
 
@@ -24,36 +24,45 @@ object Main extends App {
       .appendedAll(List.fill(population.count(_ == 0))(8))
   }
 
-  def runFastEvolution(epochs: Int, population: List[Int]): Vector[Int] = {
+  def mpow(matrix: Matrix[BigInt], exponent: Int): Matrix[BigInt] = {
+    var result = matrix
+    for i <- (2 to exponent) do {
+      result = result * matrix
+    }
+    result
+  }
+
+  def runFastEvolution(epochs: Int, population: List[Int]): BigInt = {
 
     val x = population.map(i => {
-      val vec = Vector.zeros[Int](10)
+      val vec = Vector.zeros[BigInt](10)
       vec(i) += 1
       vec(-1) += 1
       vec
     }).reduce(_ + _)
     println(x)
 
-    val A = DenseMatrix(
-      (0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-      (0, 0, 1, 0, 0, 0, 0, 0, 0, 0),
-      (0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
-      (0, 0, 0, 0, 1, 0, 0, 0, 0, 0),
-      (0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
-      (0, 0, 0, 0, 0, 0, 1, 0, 0, 0),
-      (1, 0, 0, 0, 0, 0, 0, 1, 0, 0),
-      (0, 0, 0, 0, 0, 0, 0, 0, 1, 0),
-      (1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-      (1, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+    val A: Matrix[BigInt] = DenseMatrix(
+      (BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0)),
+      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0)),
+      (BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
+      (BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1))
     )
 
-    pow(A, epochs) * x
+    val result = mpow(A, epochs) * x
+    result(-1)
   }
 
-  var population = readPopulation("./data/input.txt")
-  val epochs = 80
+  var population = readPopulation("./data/input.txt") // List(3,4,3,1,2)
+  val epochs = 256
   // val newpopulation = runEvolution(epochs = epochs, population = population)
   val newpopulation = runFastEvolution(epochs = epochs, population = population)
-  printf("Amount of fish: %d\n", newpopulation.size)
+  printf("Amount of fish: %d\n", newpopulation)
 
 }

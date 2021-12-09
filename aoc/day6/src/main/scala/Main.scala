@@ -24,14 +24,6 @@ object Main extends App {
       .appendedAll(List.fill(population.count(_ == 0))(8))
   }
 
-  def mpow(matrix: Matrix[BigInt], exponent: Int): Matrix[BigInt] = {
-    var result = matrix
-    for i <- (2 to exponent) do {
-      result = result * matrix
-    }
-    result
-  }
-
   def runFastEvolution(epochs: Int, population: List[Int]): BigInt = {
 
     val x = population.map(i => {
@@ -42,20 +34,22 @@ object Main extends App {
     }).reduce(_ + _)
     println(x)
 
-    val A: Matrix[BigInt] = DenseMatrix(
-      (BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0), BigInt(0)),
-      (BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1), BigInt(0)),
-      (BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)),
-      (BigInt(1), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(1))
+    val matrix: DenseMatrix[Int] = DenseMatrix(
+      (0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+      (0, 0, 1, 0, 0, 0, 0, 0, 0, 0),
+      (0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+      (0, 0, 0, 0, 1, 0, 0, 0, 0, 0),
+      (0, 0, 0, 0, 0, 1, 0, 0, 0, 0),
+      (0, 0, 0, 0, 0, 0, 1, 0, 0, 0),
+      (1, 0, 0, 0, 0, 0, 0, 1, 0, 0),
+      (0, 0, 0, 0, 0, 0, 0, 0, 1, 0),
+      (1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+      (1, 0, 0, 0, 0, 0, 0, 0, 0, 1)
     )
 
-    val result = mpow(A, epochs) * x
+    val A = matrix.mapValues(BigInt(_))
+    val A_pow = (2 to epochs).foldRight(A)((_, x) => x * A)
+    val result = A_pow * x
     result(-1)
   }
 

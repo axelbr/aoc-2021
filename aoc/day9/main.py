@@ -7,7 +7,6 @@ from scipy.ndimage import label
 
 
 def load_map(path: str) -> np.ndarray:
-    ''
     with open(path, 'r') as f:
         text = '\n'.join([' '.join(list(s)) for s in f.readlines()])
     heightmap = np.loadtxt(StringIO(text), dtype=int)

@@ -1,0 +1,11 @@
+ABCA
+
+AA -> A
+AB -> A
+AC -> B
+BA -> C
+BB -> B
+BC -> C
+CA -> A
+CB -> B
+CC -> C
